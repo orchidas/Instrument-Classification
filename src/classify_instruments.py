@@ -159,7 +159,7 @@ def pipeline(trainpath, testpath, method):
 
 		# train model on whole training set with all features
 		train_model = train_weights(X_train,y_train, method=method,C=best_params['C'],gamma=best_params['gamma'])
-		# print(train_model.support_vectors_)
+		print('Support Vectors are ',train_model.support_vectors_)
 
 	
 	#test on data
@@ -181,7 +181,9 @@ def plot_training_error(Xt,yt,method,niter):
 		scores.append(train_weights(Xt,yt,method = method, niter=it).score(Xt,yt))
 
 
-	plt.plot(iter,scores)
+	fig = plt.figure()
+	ax  = fig.add_subplot(111)
+	ax.plot(iter,scores,linewidth=2.0)
 	plt.xlabel('# iterations')
 	plt.ylim([0.94, 1.01])
 	plt.grid(True)
@@ -194,7 +196,9 @@ def plot_training_error(Xt,yt,method,niter):
 def plot_predicted_classes(Xtest,ytest,ypred):
 	
 	#use SVD to reduce data to two dimensions and look at predicted labels
-	svd=TruncatedSVD(n_components=2).fit_transform(Xtest)
+	clf =TruncatedSVD(n_components=2)
+	svd = clf.fit_transform(Xtest)
+	print('Variance explained by SVs ', clf.explained_variance_ratio_)
 	colors=['r','g','b','k']
 
 	plt.figure()	
@@ -208,12 +212,12 @@ def plot_predicted_classes(Xtest,ytest,ypred):
 	# ax.set_zlabel('x_3')
 	
 	for c in range(nClasses):
-		plt.plot(svd[ytest==c][:,0],svd[ytest==c][:,1],colors[c]+'+',markersize=8)
+		plt.plot(svd[ytest==c][:,0],svd[ytest==c][:,1],colors[c]+'+',markersize=10, markeredgewidth=2)
 		# ax.plot3D(svd[ytest==c][:,0],svd[ytest==c][:,1],svd[ytest==c][:,2],colors[c]+'+',markersize=8)
 
 	errX,errY=svd[ypred!=ytest],ytest[ypred!=ytest]
 	for c in range(nClasses):
-		plt.plot(errX[errY==c][:,0],errX[errY==c][:,1],colors[c]+'o')
+		plt.plot(errX[errY==c][:,0],errX[errY==c][:,1],colors[c]+'o', markersize=10, markeredgewidth=5)
 
 	plt.legend(instruments, loc = 'lower left')
 	plt.show()
@@ -224,15 +228,14 @@ def plot_predicted_classes(Xtest,ytest,ypred):
 def main():
 
 	#Logistic regression
-	pipeline(trainpath, testpath, method='logistic')
-	Xt, yt = get_data_and_labels(trainpath)
-	scores = plot_training_error(Xt,yt,'logistic',150)
+	# pipeline(trainpath, testpath, method='logistic')
+	# Xt, yt = get_data_and_labels(trainpath)
+	# scores = plot_training_error(Xt,yt,'logistic',150)
 
 	#SVM
 	pipeline(trainpath, testpath, method = 'svm')
 
 	
-
 
 if __name__ == '__main__':
     main()
